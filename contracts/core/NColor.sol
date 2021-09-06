@@ -322,7 +322,7 @@ contract NColor is NPass {
     }
 
     function withdrawAll() external payable onlyOwner {
-        uint256 _each = address(this).balance / 3;
+        uint256 _each = address(this).balance / 4;
         (bool success1, ) = payable(t1).call{ value: _each }("");
         require(success1, "Transfer to t1 failed");
         (bool success2, ) = payable(t2).call{ value: _each }("");
