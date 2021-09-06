@@ -77,7 +77,7 @@ const config: HardhatUserConfig = {
       accounts: {
         mnemonic,
       },
-      forking: { url: `https://eth-mainnet.alchemyapi.io/v2/${alchemyToken}`, blockNumber: 13150009 },
+      forking: { url: `https://eth-mainnet.alchemyapi.io/v2/${alchemyToken}`, blockNumber: 13174799 },
       chainId: chainIds.ganache,
     },
     goerli: createConfig("goerli"),
