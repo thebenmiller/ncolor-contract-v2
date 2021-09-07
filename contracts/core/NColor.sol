@@ -275,7 +275,7 @@ contract NColor is NPass {
 
     function mint(uint256 tokenId) public payable override nonReentrant {
         require(!onlyNHolders, "NPass:OPEN_MINTING_DISABLED");
-        require(tokenId > MAX_N_TOKEN_ID, "NPass:INVALID_ID");
+        require(tokenId > MAX_N_TOKEN_ID && tokenId < 10000, "NPass:INVALID_ID");
         require(msg.value >= 0.02 ether, "NPass:MINTING_FEE_REQUIRED");
 
         _safeMint(msg.sender, tokenId);
