@@ -10,11 +10,10 @@ const { parseEther, formatEther } = require("@ethersproject/units");
 async function main() {
   const { deployer } = await hre.getNamedAccounts();
   const self = await hre.ethers.getSigner(deployer);
-  const provider = hre.network.provider;
+  const provider = hre.ethers.getDefaultProvider("http://localhost:8545");
 
   const NColor = await hre.ethers.getContractFactory("NColor");
-  // KOVAN for now.
-  // const contractAddress = "0x887195b92Be5CBf35C9D83deB651eAf90646603D";
+  // localhost contract address.
   const contractAddress = "0x0503d4c2DebC86c87C751e0e00CC29E9a6Fb37f4";
   const nColor = NColor.attach(contractAddress);
 
@@ -22,6 +21,8 @@ async function main() {
 
   // 1 - 8888 are reserved for n holders.
   for (var tokenId = 1; tokenId <= 8888; tokenId++) {
+    console.log(tokenId);
+
     const N = await hre.ethers.getContractFactory("N");
     const n = N.attach("0x05a46f1E545526FB803FF974C790aCeA34D1f2D6");
     const owner = await n.ownerOf(tokenId);
@@ -34,8 +35,6 @@ async function main() {
       await nColor.connect(signer).mintWithN(tokenId, { value: parseEther("0.01") });
     } catch (ex) {
       if (ex.message.match(/sender doesn't have enough funds to send tx/)) {
-        console.log(ex.message);
-
         await self.sendTransaction({
           to: owner,
           value: parseEther("0.02"),
@@ -54,6 +53,8 @@ async function main() {
   }
 
   for (var tokenId = 8889; tokenId <= 9999; tokenId++) {
+    console.log(tokenId);
+
     await nColor.mint(tokenId, { value: parseEther("0.02") });
     tokenUri = await nColor.tokenURI(tokenId);
     metadata = Buffer.from(tokenUri.split(",")[tokenUri.split(",").length - 1], "base64");
@@ -65,17 +66,20 @@ async function main() {
 
   await nColor.withdrawAll();
 
-  const dunksBalance = await provider.getBalance("0x069e85D4F1010DD961897dC8C095FBB5FF297434");
-  console.log(formatEther(dunksBalance, 18));
+  const nColorBalance = await provider.getBalance("0x0503d4c2debc86c87c751e0e00cc29e9a6fb37f4");
+  console.log(formatEther(nColorBalance));
 
-  const kowloonBalance = await provider.getBalance("0x4Ee34BA6c5707f37C8367fd8AEF43F754435F588");
-  console.log(formatEther(kowloonBalance, 18));
+  const dunksBalance = await provider.getBalance("0x069e85D4F1010DD961897dC8C095FBB5FF297434");
+  console.log(formatEther(dunksBalance));
+
+  let kowloonBalance = await provider.getBalance("0x4Ee34BA6c5707f37C8367fd8AEF43F754435F588");
+  console.log(formatEther(kowloonBalance));
 
   const journeyapeBalance = await provider.getBalance("0xbCA2eE79aBdDF13B7f51015f183a5758D718FC86");
-  console.log(formatEther(journeyapeBalance, 18));
+  console.log(formatEther(journeyapeBalance));
 
   const daoBalance = await provider.getBalance("0x0000000000000000000000000000000000000000");
-  console.log(formatEther(daoBalance, 18));
+  console.log(formatEther(daoBalance));
 
   console.log(dunksBalance === kowloonBalance);
   console.log(kowloonBalance === journeyapeBalance);
