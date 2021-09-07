@@ -5,28 +5,45 @@
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
 const fs = require("fs");
-const { parseEther } = require("@ethersproject/units");
+const { parseEther, formatEther } = require("@ethersproject/units");
 
 async function main() {
+  const { deployer } = await hre.getNamedAccounts();
+  const self = await hre.ethers.getSigner(deployer);
+  const provider = hre.network.provider;
+
   const NColor = await hre.ethers.getContractFactory("NColor");
   // KOVAN for now.
   // const contractAddress = "0x887195b92Be5CBf35C9D83deB651eAf90646603D";
   const contractAddress = "0x0503d4c2DebC86c87C751e0e00CC29E9a6Fb37f4";
   const nColor = NColor.attach(contractAddress);
 
-  let tokenUri, hexCode, metadata, json, svgBase64, svg;
+  let tokenUri, metadata, json, svgBase64, svg;
 
   // 1 - 8888 are reserved for n holders.
   for (var tokenId = 1; tokenId <= 8888; tokenId++) {
     const N = await hre.ethers.getContractFactory("N");
     const n = N.attach("0x05a46f1E545526FB803FF974C790aCeA34D1f2D6");
     const owner = await n.ownerOf(tokenId);
-    await hre.network.provider.request({
+    await provider.request({
       method: "hardhat_impersonateAccount",
       params: [owner],
     });
-    const signer = await hre.ethers.getSigner("0x364d6D0333432C3Ac016Ca832fb8594A8cE43Ca6")
-    await nColor.connect(signer).mintWithN(tokenId, { value: parseEther("0.01") });
+    const signer = await hre.ethers.getSigner(owner);
+    try {
+      await nColor.connect(signer).mintWithN(tokenId, { value: parseEther("0.01") });
+    } catch (ex) {
+      if (ex.message.match(/sender doesn't have enough funds to send tx/)) {
+        console.log(ex.message);
+
+        await self.sendTransaction({
+          to: owner,
+          value: parseEther("0.02"),
+        });
+
+        await nColor.connect(signer).mintWithN(tokenId, { value: parseEther("0.01") });
+      }
+    }
 
     tokenUri = await nColor.tokenURI(tokenId);
     metadata = Buffer.from(tokenUri.split(",")[tokenUri.split(",").length - 1], "base64");
@@ -45,6 +62,24 @@ async function main() {
     svg = Buffer.from(svgBase64, "base64").toString();
     fs.writeFileSync(`svgs/${tokenId}.svg`, svg);
   }
+
+  await nColor.withdrawAll();
+
+  const dunksBalance = await provider.getBalance("0x069e85D4F1010DD961897dC8C095FBB5FF297434");
+  console.log(formatEther(dunksBalance, 18));
+
+  const kowloonBalance = await provider.getBalance("0x4Ee34BA6c5707f37C8367fd8AEF43F754435F588");
+  console.log(formatEther(kowloonBalance, 18));
+
+  const journeyapeBalance = await provider.getBalance("0xbCA2eE79aBdDF13B7f51015f183a5758D718FC86");
+  console.log(formatEther(journeyapeBalance, 18));
+
+  const daoBalance = await provider.getBalance("0x0000000000000000000000000000000000000000");
+  console.log(formatEther(daoBalance, 18));
+
+  console.log(dunksBalance === kowloonBalance);
+  console.log(kowloonBalance === journeyapeBalance);
+  console.log(journeyapeBalance === daoBalance);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
