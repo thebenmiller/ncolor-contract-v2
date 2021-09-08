@@ -315,8 +315,6 @@ contract NColor is NPass {
             hexString = "D";
         } else if (value == 14) {
             hexString = "E";
-        } else if (value == 15) {
-            hexString = "F";
         }
     }
 
