@@ -253,9 +253,9 @@ contract NColor is NPass {
                     abi.encodePacked(
                         '{"name": "n Color #',
                         toString(tokenId),
-                        '", "hex": "',
+                        '", "attributes": [{"trait_type": "hex", "value": "',
                         hexCode,
-                        '", "description": "n Colors are generated using 8-digit hex notation and the RGBA color model.", "image": "data:image/svg+xml;base64,',
+                        '"}], "description": "n Colors are generated using 8-digit hex notation and the RGBA color model.", "image": "data:image/svg+xml;base64,',
                         Base64.encode(bytes(output)),
                         '"}'
                     )
