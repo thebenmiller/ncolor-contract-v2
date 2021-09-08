@@ -138,8 +138,7 @@ contract NColor is NPass {
     address t1 = 0x069e85D4F1010DD961897dC8C095FBB5FF297434; // Dunks
     address t2 = 0x4Ee34BA6c5707f37C8367fd8AEF43F754435F588; // 0xkowloon
     address t3 = 0xbCA2eE79aBdDF13B7f51015f183a5758D718FC86; // journeyape
-    // TODO: Replace this with multi-sig
-    address t4 = 0x0000000000000000000000000000000000000000; // multi-sig
+    address t4 = 0xDF8413C52e2D552DAdc7aDe05273c4b62dF51A2a; // multi-sig
 
     uint8[] private suffixes = [1, 2];
 
